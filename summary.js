@@ -1,9 +1,16 @@
 import XLSX from "xlsx";
-import { ACCOUNT_IDENTIFIERS, LOOKUP_KEYS, MARKUPS } from "./constant.js";
-import { writeCSV } from "./utils.js";
+import fs from "fs";
+import {
+  ACCOUNT_IDENTIFIERS,
+  LOOKUP_KEYS,
+  MARKUPS,
+  INPUT_PATH,
+  OUTPUT_PATH,
+} from "./constant.js";
+import { writeCSV, generateFolderPath } from "./utils.js";
 
 const main = () => {
-  var workbook = XLSX.readFile(`source.csv`);
+  var workbook = XLSX.readFile(`${INPUT_PATH}/source.csv`);
   var sheet_name_list = workbook.SheetNames;
   var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
 
@@ -41,7 +48,9 @@ const main = () => {
     "Weight Charge",
     "Total Extra Charges",
     "Total Charge",
-    "Customer Charge",
+    "Customer Weight Charge",
+    "Customer Total Extra Charges",
+    "Total Customer Charge",
   ];
 
   let newData = [];
@@ -52,21 +61,34 @@ const main = () => {
       const totalCharge =
         item["Weight Charge"] + item["Total Extra Charges (XC)"];
       const customerCharge = weightCharge + item["Total Extra Charges (XC)"];
+      let invoiceType = item["Product Name"];
+      invoiceType = invoiceType
+        .replace("EXPRESS WORLDWIDE nondoc", "Express Worldwide")
+        .replace("DESTINATION CHARGES", "Destination Charges");
       return {
         Account: account,
         "Invoice Number": item["Invoice Number"],
-        "Invoice Type": item["Product Name"],
+        "Invoice Type": invoiceType,
         "Invoice Date": item["Invoice Date"],
         "Invoice Due Date": item["Due Date"],
-        "Weight Charge": weightCharge,
+        "Weight Charge": item["Weight Charge"],
         "Total Extra Charges": item["Total Extra Charges (XC)"],
-        "Total Charge": totalCharge,
-        "Customer Charge": customerCharge,
+        "Total Charge": totalCharge.toFixed(2),
+        "Customer Weight Charge": weightCharge.toFixed(2),
+        "Customer Total Extra Charges": (
+          customerCharge - item["Weight Charge"]
+        ).toFixed(2),
+        "Total Customer Charge": customerCharge.toFixed(2),
       };
     });
     newData = [...newData, ...data];
   });
-  writeCSV(`summary.csv`, headers, newData);
+
+  const todayFolderPath = generateFolderPath();
+  if (!fs.existsSync(`${OUTPUT_PATH}/${todayFolderPath}`)) {
+    fs.mkdirSync(`${OUTPUT_PATH}/${todayFolderPath}`, { recursive: true });
+  }
+  writeCSV(`${OUTPUT_PATH}/${todayFolderPath}/summary.csv`, headers, newData);
 };
 
 main();

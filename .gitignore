@@ -2,3 +2,5 @@ node_modules
 report/*.csv
 source.csv
 summary.csv
+data/inputs/*.csv
+data/reports/*

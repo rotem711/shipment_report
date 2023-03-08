@@ -1,5 +1,6 @@
 import fs from "fs";
 import { stringify } from "csv-stringify";
+import moment from "moment";
 
 const writeCSV = (filename, header, data) => {
   const writableStream = fs.createWriteStream(filename);
@@ -12,4 +13,8 @@ const writeCSV = (filename, header, data) => {
   console.log("Finished writing data");
 };
 
-export { writeCSV };
+const generateFolderPath = () => {
+  return moment().format("MM-DD-YY");
+};
+
+export { writeCSV, generateFolderPath };

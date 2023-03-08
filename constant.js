@@ -25,4 +25,7 @@ const MARKUPS = {
   "Asher Golf": 1.4,
 };
 
-export { ACCOUNT_IDENTIFIERS, LOOKUP_KEYS, MARKUPS };
+const INPUT_PATH = 'data/inputs'
+const OUTPUT_PATH = 'data/reports'
+
+export { ACCOUNT_IDENTIFIERS, LOOKUP_KEYS, MARKUPS, INPUT_PATH, OUTPUT_PATH };
