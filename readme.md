@@ -1,6 +1,6 @@
 # shipment report
 
-##### npm install
+##### `npm install`
 
 ##### copy `source.csv` to `data/inputs` folder. It should be the first worksheet in the xlsx file.
 

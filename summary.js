@@ -73,22 +73,75 @@ const main = () => {
         "Invoice Due Date": item["Due Date"],
         "Weight Charge": item["Weight Charge"],
         "Total Extra Charges": item["Total Extra Charges (XC)"],
-        "Total Charge": totalCharge.toFixed(2),
-        "Customer Weight Charge": weightCharge.toFixed(2),
-        "Customer Total Extra Charges": (
-          customerCharge - item["Weight Charge"]
-        ).toFixed(2),
-        "Total Customer Charge": customerCharge.toFixed(2),
+        "Total Charge": totalCharge,
+        "Customer Weight Charge": weightCharge,
+        "Customer Total Extra Charges": customerCharge - weightCharge,
+        "Total Customer Charge": customerCharge,
       };
     });
     newData = [...newData, ...data];
   });
 
+  const transactionReportData = newData.map((item) => ({
+    ...item,
+    "Total Charge": item["Total Charge"].toFixed(2),
+    "Customer Weight Charge": item["Customer Weight Charge"].toFixed(2),
+    "Customer Total Extra Charges":
+      item["Customer Total Extra Charges"].toFixed(2),
+    "Total Customer Charge": item["Total Customer Charge"].toFixed(2),
+  }));
+
+  let summaryDataNested = [];
+
+  const summaryKeys = ["Account", "Invoice Number"];
+  summaryDataNested = Object.values(
+    newData.reduce((r, o) => {
+      const key = summaryKeys.map((k) => o[k]).join("|");
+      if (!r[key])
+        r[key] = {
+          ...o,
+          "Weight Charge": 0,
+          "Total Extra Charges": 0,
+          "Total Charge": 0,
+          "Customer Weight Charge": 0,
+          "Customer Total Extra Charges": 0,
+          "Total Customer Charge": 0,
+        };
+      r[key]["Weight Charge"] += o["Weight Charge"];
+      r[key]["Total Extra Charges"] += o["Total Extra Charges"];
+      r[key]["Total Charge"] += o["Total Charge"];
+      r[key]["Customer Weight Charge"] += o["Customer Weight Charge"];
+      r[key]["Customer Total Extra Charges"] +=
+        o["Customer Total Extra Charges"];
+      r[key]["Total Customer Charge"] += o["Total Customer Charge"];
+      return r;
+    }, {})
+  );
+
+  summaryDataNested = summaryDataNested.map((item) => ({
+    ...item,
+    "Total Charge": item["Total Charge"].toFixed(2),
+    "Customer Weight Charge": item["Customer Weight Charge"].toFixed(2),
+    "Customer Total Extra Charges":
+      item["Customer Total Extra Charges"].toFixed(2),
+    "Total Customer Charge": item["Total Customer Charge"].toFixed(2),
+  }));
+
   const todayFolderPath = generateFolderPath();
   if (!fs.existsSync(`${OUTPUT_PATH}/${todayFolderPath}`)) {
     fs.mkdirSync(`${OUTPUT_PATH}/${todayFolderPath}`, { recursive: true });
   }
-  writeCSV(`${OUTPUT_PATH}/${todayFolderPath}/summary.csv`, headers, newData);
+  writeCSV(
+    `${OUTPUT_PATH}/${todayFolderPath}/transaction-report_${todayFolderPath}.csv`,
+    headers,
+    transactionReportData
+  );
+
+  writeCSV(
+    `${OUTPUT_PATH}/${todayFolderPath}/summary_${todayFolderPath}.csv`,
+    headers,
+    summaryDataNested
+  );
 };
 
 main();
