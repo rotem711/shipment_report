@@ -17,4 +17,8 @@ const generateFolderPath = () => {
   return moment().format("MM-DD-YY")
 }
 
-export { writeCSV, generateFolderPath }
+const round2digits = (num) => {
+  return Math.round(num * 100) / 100
+}
+
+export { writeCSV, generateFolderPath, round2digits }

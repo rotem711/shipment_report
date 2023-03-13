@@ -1,7 +1,7 @@
 import XLSX from "xlsx"
 import fs from "fs"
 import { ACCOUNT_IDENTIFIERS, LOOKUP_KEYS, MARKUPS, INPUT_PATH, OUTPUT_PATH } from "./constant.js"
-import { writeCSV, generateFolderPath } from "./utils.js"
+import { writeCSV, generateFolderPath, round2digits } from "./utils.js"
 
 const main = () => {
   var workbook = XLSX.readFile(`${INPUT_PATH}/source.csv`)
@@ -19,6 +19,8 @@ const main = () => {
             rowsByAccount[key].push(item)
             return
           }
+          console.log({ i })
+          console.log({ j })
         }
       }
     }
@@ -27,6 +29,8 @@ const main = () => {
     return
   })
   const accountList = Object.keys(rowsByAccount)
+
+  console.log(accountList)
 
   const headers = [
     "Account",
@@ -46,9 +50,9 @@ const main = () => {
 
   accountList.map((account) => {
     const data = rowsByAccount[account].map((item) => {
-      const weightCharge = item["Weight Charge"] * (MARKUPS[account] || 1)
-      const totalCharge = item["Weight Charge"] + item["Total Extra Charges (XC)"]
-      const customerCharge = weightCharge + item["Total Extra Charges (XC)"]
+      const weightCharge = round2digits(item["Weight Charge"] * MARKUPS[account])
+      const totalCharge = round2digits(item["Weight Charge"] + item["Total Extra Charges (XC)"])
+      const customerCharge = round2digits(weightCharge + item["Total Extra Charges (XC)"])
       let invoiceType = item["Product Name"]
       invoiceType = invoiceType
         .replace("EXPRESS WORLDWIDE nondoc", "Express Worldwide")
@@ -94,12 +98,12 @@ const main = () => {
           "Customer Total Extra Charges": 0,
           "Total Customer Charge": 0,
         }
-      r[key]["Weight Charge"] += o["Weight Charge"]
-      r[key]["Total Extra Charges"] += o["Total Extra Charges"]
-      r[key]["Total Charge"] += o["Total Charge"]
-      r[key]["Customer Weight Charge"] += o["Customer Weight Charge"]
-      r[key]["Customer Total Extra Charges"] += o["Customer Total Extra Charges"]
-      r[key]["Total Customer Charge"] += o["Total Customer Charge"]
+      r[key]["Weight Charge"] += round2digits(o["Weight Charge"])
+      r[key]["Total Extra Charges"] += round2digits(o["Total Extra Charges"])
+      r[key]["Total Charge"] += round2digits(o["Total Charge"])
+      r[key]["Customer Weight Charge"] += round2digits(o["Customer Weight Charge"])
+      r[key]["Customer Total Extra Charges"] += round2digits(o["Customer Total Extra Charges"])
+      r[key]["Total Customer Charge"] += round2digits(o["Total Customer Charge"])
       return r
     }, {})
   )

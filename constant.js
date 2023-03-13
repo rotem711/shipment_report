@@ -10,8 +10,8 @@ const LOOKUP_KEYS = {
 const MARKUPS = {
   "Senita Athletics": 1.5625,
   Nominal: 1.5625,
-  Dixxon: 1.2,
-  "Asher Golf": 1.4,
+  Dixxon: 1.5625,
+  "Asher Golf": 1.5625,
 }
 
 const INPUT_PATH = "data/inputs"
